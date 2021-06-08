@@ -7,16 +7,17 @@
                    style="margin-right: 10px; width: 40px; height: 40px;" to="/"></router-link>
       {{ $store.getters.title }}
     </div>
-    <div style="font-size: 23px; width: 40px; height: 40px; z-index: 999; background: white;" class="flatten-btn"
+    <div :style="`font-size: 23px; width: 40px; height: 40px; z-index: 999; ${menuEnabled ? 'background: white;' : ''}`"
+         class="flatten-btn"
          @click="menuEnabled = !menuEnabled">
       <span v-if="menuEnabled" class="mdi mdi-close"></span>
       <span v-else class="mdi mdi-menu"></span>
     </div>
   </nav>
   <router-view/>
-  <div>
-    <div :style="`transition: backdrop-filter, background-color .5s; position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100vh; width: 100vw; z-index: ${menuEnabled ? '99' : '-99'};`" :class="menuEnabled ? 'blur' : ''"></div>
-  </div>
+  <div
+      :style="`transition: backdrop-filter, background-color .5s; position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100vh; width: 100vw; z-index: ${menuEnabled ? '99' : '-99'};`"
+      :class="menuEnabled ? 'blur' : ''"></div>
 </template>
 
 <script>
