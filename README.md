@@ -1,19 +1,2 @@
-# blockcodingoj
-
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# Block Coding OJ Frontend
+* Vue.js로 구현한 블럭코딩 온라인 저지 프론트엔드
