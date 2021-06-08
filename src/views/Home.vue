@@ -12,7 +12,7 @@
           <p style="width: 10%; text-align: right;">제출</p>
         </div>
         <router-link v-for="{id, title, accepted, submit} in recentProblemList"
-                     style="color: inherit; text-decoration: inherit; display: flex; font-weight: 300; border-top: 1px solid black; padding: 10px;"
+                     style="display: flex; font-weight: 300; border-top: 1px solid black; padding: 10px; height: 40px;"
                      class="flatten-btn" :id="id" :to="`/problem/${id}`">
           <p style="width: 10%;">{{ id }}</p>
           <p style="width: 60%;">{{ title }}</p>
