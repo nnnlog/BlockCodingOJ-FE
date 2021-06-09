@@ -1,36 +1,50 @@
 const axios = require("axios");
 const qs = require("querystring");
+const VueLocalStorage = require("vue-localstorage");
 
 axios.interceptors.response.use(res => res, err => err.response);
 
+const HOST = 0 ? location.origin : "http://127.0.0.1";
+
 const request = async (url, param = {}, body = null) => {
-	let res = await axios(`${location.origin}/api/${url}?${qs.encode(param)}`, {
+	let token = localStorage.token;
+	let res = await axios(`${HOST}/api/${url}${Object.values(param).length ? '?' : ''}${qs.encode(param)}`, {
 		method: body ? "POST" : "GET",
-		data: body
+		data: body,
+		headers: {
+			Authorization: token ? token : undefined,
+		},
 	});
 	let data = res.data;
 	if (data.message !== undefined) {
 		alert(data.message);
+	} else if (data.status !== 0) {
+		//alert("오류가 발생했습니다.");
 	}
 	return data;
 };
 
-let problem_temp_data = [
-	{id: "1", title: "Hello, World!", accepted: 10, submit: 11},
-	{id: "2", title: "A + B", accepted: 2, submit: 2},
-];
-
 module.exports = {
-	auth: {},
-	problem: {
-		getRecentList() {
-			return problem_temp_data;
+	auth: {
+		async register(id, pw) {
+			return (await request("auth/register", {}, {id, pw})).status;
 		},
-		getProblemFromId(id) {
-			for (let obj of problem_temp_data) {
-				if (id.toString() === obj.id) return obj;
-			}
-			return {};
+		async login(id, pw) {
+			return (await request("auth/login", {}, {id, pw})).result;
+		},
+		async user() {
+			return (await request("auth/user")).result;
+		},
+		async logout() {
+			return (await request("auth/logout")).result;
+		},
+	},
+	problem: {
+		async getRecentList() {
+			return (await request("prob/recent")).result;
+		},
+		async getProblemFromId(id) {
+			return (await request(`prob/${id}/`)).result;
 		}
 	},
 	submission: {},
