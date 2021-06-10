@@ -1,6 +1,5 @@
 const axios = require("axios");
 const qs = require("querystring");
-const VueLocalStorage = require("vue-localstorage");
 
 axios.interceptors.response.use(res => res, err => err.response);
 

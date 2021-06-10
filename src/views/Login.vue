@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-    <input v-model="id" placeholder="아이디">
-    <input v-model="pw" placeholder="비밀번호">
+    <input v-model="id" placeholder="아이디" id="login_id">
+    <input v-model="pw" placeholder="비밀번호" id="login_pw" type="password">
     <button @click="login">로그인</button>
   </div>
 </template>

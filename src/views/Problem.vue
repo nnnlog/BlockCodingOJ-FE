@@ -1,6 +1,6 @@
 <template>
   <div style="display: flex; justify-content: center; height: 100%; overflow: hidden;">
-    <div style="flex: 1; padding: 20px 50px; border-right: .5px solid black">
+    <div style="flex: 1; margin: 20px 50px;">
       <div><!-- 제출 기록 for logined user --></div>
       <div>
         <h1 style="font-weight: 500; font-size: 45px; margin-bottom: 16px;">{{ problemData.title }}</h1>
@@ -18,18 +18,29 @@
         </article>
       </div>
     </div>
-    <div style="flex: 1; padding: 20px; border-left: .5px solid black">
-      Blockly will be inserted here.
+    <div
+        style="flex: 1; height: 100%; border-left: 1px solid black; z-index: 50; display: flex; flex-direction: column;">
+      <BlocklyComponent ref="blockly" style="height: 100%;" :options="options"></BlocklyComponent>
+      <div style="display: flex; justify-content: space-around; margin: 10px;">
+        <!-- <button>테스트케이스 추가하기</button> -->
+        <button @click="">테스트</button>
+        <button @click="getBlocklyXML">제출</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import api from '@/api';
+import BlocklyComponent from "@/component/BlocklyComponent";
+import '@/prompt';
+import Blockly from 'blockly';
 
 export default {
   name: 'Problem',
-  components: {},
+  components: {
+    BlocklyComponent
+  },
   computed: {
     problemId() {
       return this.$route.params.id;
@@ -38,10 +49,64 @@ export default {
   data() {
     return {
       problemData: {},
+      options: {
+        media: 'media/',
+        grid: {
+          spacing: 25,
+          length: 3,
+          colour: '#ccc',
+          snap: true
+        },
+        toolbox:
+            `<xml>
+          <category name="Logic" colour="%{BKY_LOGIC_HUE}">
+            <block type="controls_if"></block>
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_negate"></block>
+            <block type="logic_boolean"></block>
+          </category>
+          <category name="Loops" colour="%{BKY_LOOPS_HUE}">
+            <block type="controls_repeat_ext">
+              <value name="TIMES">
+                <block type="math_number">
+                  <field name="NUM">10</field>
+                </block>
+              </value>
+            </block>
+            <block type="controls_whileUntil"></block>
+          </category>
+          <category name="Math" colour="%{BKY_MATH_HUE}">
+            <block type="math_number">
+              <field name="NUM">123</field>
+            </block>
+            <block type="math_arithmetic"></block>
+            <block type="math_single"></block>
+          </category>
+          <category name="Text" colour="%{BKY_TEXTS_HUE}">
+            <block type="text"></block>
+            <block type="text_length"></block>
+            <block type="text_print"></block>
+          </category>
+          <category name="Variables" custom="VARIABLE" colour="%{BKY_VARIABLES_HUE}">
+            </category>
+          <category name="Stocks" colour="%{BKY_LOOPS_HUE}">
+            <block type="stock_buy_simple"></block>
+            <block type="stock_buy_prog"></block>
+            <block type="stock_fetch_price"></block>
+          </category>
+        </xml>`
+      },
     };
   },
-  methods() {
-    return {}
+  methods: {
+    getBlocklyXML() {
+      return Blockly.Xml.workspaceToDom(this.$refs.blockly.workspace);
+    },
+    updateBlockly(event) {
+      console.log(this.getBlocklyXML());
+      // TODO: send to server, if fails, save to localstorage
+    },
   },
   async created() {
     this.problemData = await api.problem.getProblemFromId(this.problemId);
@@ -52,6 +117,9 @@ export default {
       return;
     }
     this.$store.dispatch('setTitle', `${this.problemId}번 : ${this.problemData.title}`);
+  },
+  mounted() {
+    this.$refs.blockly.workspace.addChangeListener(this.updateBlockly);
   }
 }
 </script>
