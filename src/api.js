@@ -44,6 +44,12 @@ module.exports = {
 		},
 		async getProblemFromId(id) {
 			return (await request(`prob/${id}/`)).result;
+		},
+		async loadXML(id) {
+			return (await request(`prob/${id}/load`)).result;
+		},
+		async saveXML(id, xml) {
+			return (await request(`prob/${id}/save`, {}, {xml})).status;
 		}
 	},
 	submission: {},

@@ -20,11 +20,15 @@
     </div>
     <div
         style="flex: 1; height: 100%; border-left: 1px solid black; z-index: 50; display: flex; flex-direction: column;">
-      <BlocklyComponent ref="blockly" style="height: 100%;" :options="options"></BlocklyComponent>
+      <div style="height: 100%;" class="blockly" ref="blockly">
+      </div>
+      <xml ref="blocklyToolbox" style="display:none">
+        <slot></slot>
+      </xml>
       <div style="display: flex; justify-content: space-around; margin: 10px;">
         <!-- <button>테스트케이스 추가하기</button> -->
         <button @click="">테스트</button>
-        <button @click="getBlocklyXML">제출</button>
+        <button @click="submit">제출</button>
       </div>
     </div>
   </div>
@@ -48,14 +52,36 @@ export default {
   },
   data() {
     return {
+      workspace: null,
+      sendData: null,
+      lastData: null,
       problemData: {},
       options: {
-        media: 'media/',
+        media: 'https://blockly-demo.appspot.com/static/media/',
+        collapse: true,
+        comments: true,
+        disable: true,
+        maxBlocks: Infinity,
+        trashcan: true,
+        horizontalLayout: false,
+        css: true,
+        rtl: false,
+        scrollbars: true,
+        sounds: true,
+        oneBasedIndex: true,
         grid: {
-          spacing: 25,
-          length: 3,
-          colour: '#ccc',
-          snap: true
+          spacing: 20,
+          length: 1,
+          colour: '#888',
+          snap: false
+        },
+        zoom: {
+          controls: true,
+          wheel: true,
+          startScale: 1,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2
         },
         toolbox:
             `<xml>
@@ -101,14 +127,18 @@ export default {
   },
   methods: {
     getBlocklyXML() {
-      return Blockly.Xml.workspaceToDom(this.$refs.blockly.workspace);
+      return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace));
     },
-    updateBlockly(event) {
-      console.log(this.getBlocklyXML());
-      // TODO: send to server, if fails, save to localstorage
+    async submit() {
+      await api.problem.saveXML(this.problemId, this.getBlocklyXML());
+    },
+    updateBlockly() {
+      let xml = this.getBlocklyXML();
+      this.sendData = xml;
+      localStorage[`p${this.problemId}`] = xml;
     },
   },
-  async created() {
+  async mounted() {
     this.problemData = await api.problem.getProblemFromId(this.problemId);
     if (Object.values(this.problemData).length === 0) {
       await this.$router.push({
@@ -117,9 +147,28 @@ export default {
       return;
     }
     this.$store.dispatch('setTitle', `${this.problemId}번 : ${this.problemData.title}`);
-  },
-  mounted() {
-    this.$refs.blockly.workspace.addChangeListener(this.updateBlockly);
+
+    Blockly.inject(this.$refs.blockly, this.options);
+    let xml = await api.problem.loadXML(this.problemId);
+    let localXML = localStorage[`p${this.problemId}`];
+    if (typeof localXML === "string") {
+      xml = localXML;
+      if (!await api.problem.saveXML(this.problemId, xml)) delete localStorage[`p${this.problemId}`];
+    }
+    if (typeof xml === "string") {
+      Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), Blockly.mainWorkspace);
+    }
+    Blockly.mainWorkspace.addChangeListener(this.updateBlockly);
+    setInterval(async () => {
+      if (this.sendData === this.lastData) this.sendData = localStorage[`p${this.problemId}`];
+      if (this.sendData !== this.lastData) {
+        let ret = await api.problem.saveXML(this.problemId, this.sendData);
+        if (!ret) {
+          this.lastData = this.sendData;
+          if (localStorage[`p${this.problemId}`] !== undefined) delete localStorage[`p${this.problemId}`];
+        }
+      }
+    }, 1000 * 10);
   }
 }
 </script>
