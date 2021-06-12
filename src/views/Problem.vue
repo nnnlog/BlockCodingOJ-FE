@@ -1,7 +1,23 @@
 <template>
   <div style="display: flex; justify-content: center; height: 100%; overflow: hidden;">
-    <div style="flex: 1; margin: 20px 50px;">
-      <div><!-- 제출 기록 for logined user --></div>
+    <div style="flex: 1; padding: 20px 50px; overflow-x: hidden; overflow-y: scroll;">
+      <div v-if="$store.getters.isLogin">
+        <h3 style="font-weight: 500; font-size: 30px; margin: 0;">제출 기록</h3>
+        <div>
+          <div style="font-weight: 500; border: none;" class="prob-list-row">
+            <p style="width: 25%;">#</p>
+            <p style="width: 35%;">결과</p>
+            <p style="width: 40%; text-align: right;">제출 시간</p>
+          </div>
+          <div v-for="{submission_id, judge_result, date} in recentSubmissionList"
+               style="font-weight: 300; cursor: inherit;"
+               class="flatten-btn prob-list-row" :id="submission_id">
+            <p style="width: 25%;">{{ submission_id }}</p>
+            <p style="width: 35%;">{{ verdictToString(judge_result.verdict) }}</p>
+            <p style="width: 40%; text-align: right;">{{ (new Date(date)).toLocaleString() }}</p>
+          </div>
+        </div>
+      </div>
       <div>
         <h1 style="font-weight: 500; font-size: 45px; margin-bottom: 16px;">{{ problemData.title }}</h1>
         <hr width="100%" color="black" style="margin-bottom: 36px;">
@@ -22,7 +38,7 @@
         style="flex: 1; height: 100%; border-left: 1px solid black; z-index: 50; display: flex; flex-direction: column;">
       <div style="height: 100%;" class="blockly" ref="blockly">
       </div>
-      <xml ref="blocklyToolbox" style="display:none">
+      <xml ref="blocklyToolbox" style="display: none;">
         <slot></slot>
       </xml>
       <div style="display: flex; justify-content: space-around; margin: 10px;">
@@ -39,6 +55,7 @@ import api from '@/api';
 import BlocklyComponent from "@/component/BlocklyComponent";
 import '@/prompt';
 import Blockly from 'blockly';
+import verdict from '@/verdict';
 
 export default {
   name: 'Problem',
@@ -52,9 +69,11 @@ export default {
   },
   data() {
     return {
+      verdictToString: verdict.toString,
       workspace: null,
       sendData: null,
       lastData: null,
+      recentSubmissionList: [],
       problemData: {},
       options: {
         media: 'https://blockly-demo.appspot.com/static/media/',
@@ -115,11 +134,6 @@ export default {
             <block type="text_print"></block>
           </category>
           <category name="Variables" custom="VARIABLE" colour="%{BKY_VARIABLES_HUE}">
-            </category>
-          <category name="Stocks" colour="%{BKY_LOOPS_HUE}">
-            <block type="stock_buy_simple"></block>
-            <block type="stock_buy_prog"></block>
-            <block type="stock_fetch_price"></block>
           </category>
         </xml>`
       },
@@ -131,6 +145,7 @@ export default {
     },
     async submit() {
       await api.problem.saveXML(this.problemId, this.getBlocklyXML());
+      await api.problem.submit(this.problemId, this.getBlocklyXML());
     },
     updateBlockly() {
       let xml = this.getBlocklyXML();
@@ -148,6 +163,8 @@ export default {
     }
     this.$store.dispatch('setTitle', `${this.problemId}번 : ${this.problemData.title}`);
 
+    this.recentSubmissionList = await api.submission.getRecentList(this.$store.getters.id, 5);
+
     Blockly.inject(this.$refs.blockly, this.options);
     let xml = await api.problem.loadXML(this.problemId);
     let localXML = localStorage[`p${this.problemId}`];
@@ -161,7 +178,7 @@ export default {
     Blockly.mainWorkspace.addChangeListener(this.updateBlockly);
     setInterval(async () => {
       if (this.sendData === this.lastData) this.sendData = localStorage[`p${this.problemId}`];
-      if (this.sendData !== this.lastData) {
+      if (this.sendData !== this.lastData && typeof this.sendData === "string") {
         let ret = await api.problem.saveXML(this.problemId, this.sendData);
         if (!ret) {
           this.lastData = this.sendData;

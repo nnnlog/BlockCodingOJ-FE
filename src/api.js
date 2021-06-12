@@ -50,7 +50,14 @@ module.exports = {
 		},
 		async saveXML(id, xml) {
 			return (await request(`prob/${id}/save`, {}, {xml})).status;
+		},
+		async submit(id, xml) {
+			return (await request(`prob/${id}/submit`, {}, {xml})).status;
 		}
 	},
-	submission: {},
+	submission: {
+		async getRecentList(user_id, page) {
+			return (await request(`submission/user/${user_id}`, {page})).result;
+		},
+	},
 };
