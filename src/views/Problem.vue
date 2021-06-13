@@ -142,6 +142,7 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     if (this.saveId !== null) clearInterval(this.saveId);
+    next();
   },
   methods: {
     getBlocklyXML() {
