@@ -173,14 +173,15 @@ export default {
     }
     this.$store.dispatch('setTitle', `${this.problemId}번 : ${this.problemData.title}`);
 
-    this.recentSubmissionList = await api.submission.getRecentList(this.$store.getters.id, 5);
+    if (!this.$store.getters.isLogin) this.recentSubmissionList = await api.submission.getRecentList(this.$store.getters.id, 5);
 
     Blockly.inject(this.$refs.blockly, this.options);
-    let xml = await api.problem.loadXML(this.problemId);
+    let xml;
+    if (this.$store.getters.isLogin) xml = await api.problem.loadXML(this.problemId);
     let localXML = localStorage[`p${this.problemId}`];
     if (typeof localXML === "string") {
       xml = localXML;
-      if (!await api.problem.saveXML(this.problemId, xml)) delete localStorage[`p${this.problemId}`];
+      if (this.$store.getters.isLogin && !await api.problem.saveXML(this.problemId, xml)) delete localStorage[`p${this.problemId}`];
     }
     if (typeof xml === "string") {
       Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), Blockly.mainWorkspace);
@@ -188,7 +189,7 @@ export default {
     Blockly.mainWorkspace.addChangeListener(this.updateBlockly);
     this.saveId = setInterval(async () => {
       if (this.sendData === this.lastData) this.sendData = localStorage[`p${this.problemId}`];
-      if (this.sendData !== this.lastData && typeof this.sendData === "string") {
+      if (this.sendData !== this.lastData && typeof this.sendData === "string" && this.$store.getters.isLogin) {
         let ret = await api.problem.saveXML(this.problemId, this.sendData);
         if (!ret) {
           this.lastData = this.sendData;
