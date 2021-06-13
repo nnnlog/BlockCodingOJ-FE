@@ -20,7 +20,7 @@
           <p style="width: 10%;">{{ problem_id }}</p>
           <p style="width: 50%;">{{ title }}</p>
           <p style="width: 25%; text-align: right;">{{ accepted }}</p>
-          <p style="width: 10%; text-align: right;">{{ submit }}</p>
+          <p style="width: 15%; text-align: right;">{{ submit }}</p>
         </router-link>
       </div>
     </div>
