@@ -140,7 +140,7 @@ html, body, head {
 }
 
 * {
-  font-family: 'IBM Plex Sans KR', serif;
+  font-family: 'IBMPlexSansKR', serif;
 }
 
 ::selection {
