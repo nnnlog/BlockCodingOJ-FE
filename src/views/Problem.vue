@@ -173,7 +173,7 @@ export default {
     }
     this.$store.dispatch('setTitle', `${this.problemId}번 : ${this.problemData.title}`);
 
-    if (!this.$store.getters.isLogin) this.recentSubmissionList = await api.submission.getRecentList(this.$store.getters.id, 5);
+    if (this.$store.getters.isLogin) this.recentSubmissionList = await api.submission.getRecentList(this.$store.getters.id, 5);
 
     Blockly.inject(this.$refs.blockly, this.options);
     let xml;
