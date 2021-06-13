@@ -43,7 +43,7 @@
       </xml>
       <div style="display: flex; justify-content: space-around; margin: 10px;">
         <!-- <button>테스트케이스 추가하기</button> -->
-        <button @click="">테스트</button>
+        <button @click="" style="display: none;">테스트</button>
         <button @click="submit">제출</button>
       </div>
     </div>
@@ -73,6 +73,7 @@ export default {
       workspace: null,
       sendData: null,
       lastData: null,
+      saveId: null,
       recentSubmissionList: [],
       problemData: {},
       options: {
@@ -139,11 +140,20 @@ export default {
       },
     };
   },
+  beforeRouteLeave(to, from, next) {
+    if (this.saveId !== null) clearInterval(this.saveId);
+  },
   methods: {
     getBlocklyXML() {
       return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace));
     },
     async submit() {
+      if (!this.$store.getters.isLogin) {
+        await this.$router.push({
+          name: "Login"
+        });
+        return;
+      }
       await api.problem.saveXML(this.problemId, this.getBlocklyXML());
       await api.problem.submit(this.problemId, this.getBlocklyXML());
     },
@@ -176,7 +186,7 @@ export default {
       Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), Blockly.mainWorkspace);
     }
     Blockly.mainWorkspace.addChangeListener(this.updateBlockly);
-    setInterval(async () => {
+    this.saveId = setInterval(async () => {
       if (this.sendData === this.lastData) this.sendData = localStorage[`p${this.problemId}`];
       if (this.sendData !== this.lastData && typeof this.sendData === "string") {
         let ret = await api.problem.saveXML(this.problemId, this.sendData);

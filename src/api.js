@@ -3,7 +3,7 @@ const qs = require("querystring");
 
 axios.interceptors.response.use(res => res, err => err.response);
 
-const HOST = 0 ? location.origin : "http://127.0.0.1";
+const HOST = 1 ? location.origin : "http://127.0.0.1";
 
 const request = async (url, param = {}, body = null) => {
 	let token = localStorage.token;

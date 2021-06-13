@@ -3,6 +3,7 @@
     <input v-model="id" placeholder="아이디" id="login_id">
     <input v-model="pw" placeholder="비밀번호" id="login_pw" type="password">
     <button @click="login">로그인</button>
+    <router-link to="/register/" class="flatten-btn">회원가입</router-link>
   </div>
 </template>
 

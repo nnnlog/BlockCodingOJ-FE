@@ -24,6 +24,7 @@ export default {
     async register() {
       let result = await api.auth.register(this.id, this.pw);
       if (result === 1) alert("이미 존재하는 아이디입니다.");
+      else if (result) alert("오류가 발생했습니다.");
       else {
         await this.$store.dispatch('login', {
           id: this.id,
