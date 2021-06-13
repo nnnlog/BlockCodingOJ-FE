@@ -19,7 +19,7 @@
                      class="flatten-btn prob-list-row" :id="problem_id" :to="`/problem/${problem_id}`">
           <p style="width: 10%;">{{ problem_id }}</p>
           <p style="width: 50%;">{{ title }}</p>
-          <p style="width: 25%; text-align: right;">{{ accepted }}</p>
+          <p style="width: 25%; text-align: right;">{{ Object.keys(accepted).length }}</p>
           <p style="width: 15%; text-align: right;">{{ submit }}</p>
         </router-link>
       </div>
