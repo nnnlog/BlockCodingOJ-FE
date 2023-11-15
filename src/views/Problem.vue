@@ -146,7 +146,7 @@ export default {
   },
   methods: {
     getBlocklyXML() {
-      return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.getgetMainWorkspace()()));
+      return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace()));
     },
     async submit() {
       if (!this.$store.getters.isLogin) {
