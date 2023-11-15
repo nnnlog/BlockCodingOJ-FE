@@ -45,6 +45,7 @@ export default {
       options.toolbox = this.$refs["blocklyToolbox"];
     }
     this.workspace = Blockly.inject(this.$refs["blockly"], options);
+    console.log(this.workspace);
   }
 }
 </script>

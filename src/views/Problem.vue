@@ -146,7 +146,7 @@ export default {
   },
   methods: {
     getBlocklyXML() {
-      return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace));
+      return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.getgetMainWorkspace()()));
     },
     async submit() {
       if (!this.$store.getters.isLogin) {
@@ -185,9 +185,9 @@ export default {
       if (this.$store.getters.isLogin && !await api.problem.saveXML(this.problemId, xml)) delete localStorage[`p${this.problemId}`];
     }
     if (typeof xml === "string") {
-      Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), Blockly.mainWorkspace);
+      Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), Blockly.getMainWorkspace());
     }
-    Blockly.mainWorkspace.addChangeListener(this.updateBlockly);
+    Blockly.getMainWorkspace().addChangeListener(this.updateBlockly);
     this.saveId = setInterval(async () => {
       if (this.sendData === this.lastData) this.sendData = localStorage[`p${this.problemId}`];
       if (this.sendData !== this.lastData && typeof this.sendData === "string" && this.$store.getters.isLogin) {

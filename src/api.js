@@ -1,5 +1,5 @@
-const axios = require("axios");
-const qs = require("querystring");
+import axios from "axios";
+import qs from "querystring";
 
 axios.interceptors.response.use(res => res, err => err.response);
 
@@ -23,7 +23,7 @@ const request = async (url, param = {}, body = null) => {
 	return data;
 };
 
-module.exports = {
+export default {
 	auth: {
 		async register(id, pw) {
 			return (await request("auth/register", {}, {id, pw})).status;

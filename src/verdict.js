@@ -7,6 +7,6 @@ let obj = {
 	5: "MLE",
 	6: "CLE",
 };
-module.exports = {
+export default {
 	toString: code => obj[code] || 'Unknown',
 }
